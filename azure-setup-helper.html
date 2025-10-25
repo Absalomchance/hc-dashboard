@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure AD Setup Helper</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .step {
+            border-left: 4px solid #0078d4;
+            padding: 20px;
+            margin: 20px 0;
+            background: #f8f9fa;
+            border-radius: 0 8px 8px 0;
+        }
+        .step h3 {
+            margin-top: 0;
+            color: #0078d4;
+        }
+        .copy-section {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .copy-button {
+            background: #0078d4;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .copy-button:hover {
+            background: #106ebe;
+        }
+        .input-group {
+            margin: 15px 0;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            font-family: monospace;
+        }
+        .generate-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .generate-button:hover {
+            background: #218838;
+        }
+        .config-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            margin-top: 20px;
+            display: none;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .checklist li:before {
+            content: "☐ ";
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        .checklist li.done:before {
+            content: "✅ ";
+        }
+        .link-button {
+            background: #0078d4;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            display: inline-block;
+            margin: 10px 10px 10px 0;
+        }
+        .link-button:hover {
+            background: #106ebe;
+            text-decoration: none;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 PMS Dashboard - Azure AD Setup Helper</h1>
+        
+        <div class="step">
+            <h3>Step 1: Create App Registration</h3>
+            <p>Use these exact values when creating your app registration:</p>
+            <div class="copy-section">
+                <strong>Name:</strong> <span id="appName">PMS Dashboard</span>
+                <button class="copy-button" onclick="copyText('PMS Dashboard')">Copy</button><br><br>
+                <strong>Redirect URI:</strong> <span id="redirectUri">http://localhost:5174</span>
+                <button class="copy-button" onclick="copyText('http://localhost:5174')">Copy</button><br><br>
+                <strong>Account Types:</strong> Accounts in this organizational directory only (Single tenant)
+            </div>
+            <a href="https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/CreateApplicationBlade" target="_blank" class="link-button">
+                🚀 Open Azure App Registration
+            </a>
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Configure API Permissions</h3>
+            <p>After creating the app, add these Microsoft Graph permissions:</p>
+            <ul class="checklist">
+                <li>User.Read (usually already added)</li>
+                <li>Sites.Read.All</li>
+                <li>Directory.Read.All</li>
+                <li>User.ReadBasic.All</li>
+            </ul>
+            <p><strong>Don't forget:</strong> Click "Grant admin consent" after adding permissions!</p>
+        </div>
+
+        <div class="step">
+            <h3>Step 3: Get Your Configuration Values</h3>
+            <p>From your app registration's Overview page, copy these values:</p>
+            
+            <div class="input-group">
+                <label>Application (client) ID:</label>
+                <input type="text" id="clientId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+            </div>
+            
+            <div class="input-group">
+                <label>Directory (tenant) ID:</label>
+                <input type="text" id="tenantId" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+            </div>
+
+            <button class="generate-button" onclick="generateConfig()">
+                🔧 Generate Configuration Code
+            </button>
+
+            <div id="configOutput" class="config-output"></div>
+        </div>
+
+        <div class="step">
+            <h3>Step 4: Update Your Application</h3>
+            <p>Once you've generated the configuration code above:</p>
+            <ol>
+                <li>Open <code>src/config.js</code> in your editor</li>
+                <li>Replace the Azure configuration section with the generated code</li>
+                <li>Save the file</li>
+                <li>Your application will automatically reload with authentication!</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied: ' + text);
+            }).catch(() => {
+                alert('Please copy manually: ' + text);
+            });
+        }
+
+        function generateConfig() {
+            const clientId = document.getElementById('clientId').value.trim();
+            const tenantId = document.getElementById('tenantId').value.trim();
+            
+            if (!clientId || !tenantId) {
+                alert('Please enter both Client ID and Tenant ID');
+                return;
+            }
+
+            // Validate GUID format
+            const guidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            
+            if (!guidPattern.test(clientId)) {
+                alert('Client ID format is invalid. Should be a GUID format.');
+                return;
+            }
+            
+            if (!guidPattern.test(tenantId)) {
+                alert('Tenant ID format is invalid. Should be a GUID format.');
+                return;
+            }
+
+            const configCode = `// Azure AD Configuration
+azure: {
+  clientId: '${clientId}',
+  tenantId: '${tenantId}',
+  authority: 'https://login.microsoftonline.com/${tenantId}',
+  redirectUri: window.location.origin,
+},`;
+
+            const outputDiv = document.getElementById('configOutput');
+            outputDiv.textContent = configCode;
+            outputDiv.style.display = 'block';
+
+            // Add copy button
+            const copyButton = document.createElement('button');
+            copyButton.textContent = '📋 Copy Configuration';
+            copyButton.className = 'copy-button';
+            copyButton.style.marginTop = '10px';
+            copyButton.onclick = () => copyText(configCode);
+            
+            outputDiv.appendChild(document.createElement('br'));
+            outputDiv.appendChild(copyButton);
+        }
+    </script>
+</body>
+</html>

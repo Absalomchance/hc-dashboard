@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: pms-dashboard
+    runtime: node
+    plan: free  # Change to 'starter' or 'pro' if needed
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+    domains:
+      - pms.nsa.org.na

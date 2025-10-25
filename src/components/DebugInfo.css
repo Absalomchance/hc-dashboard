@@ -1,0 +1,52 @@
+/* Debug Info Styles */
+.debug-info {
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  font-size: 14px;
+}
+
+.debug-info h4 {
+  color: #92400e;
+  margin: 0 0 15px 0;
+  font-size: 16px;
+}
+
+.debug-section {
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #fbbf24;
+}
+
+.debug-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.debug-section h5 {
+  color: #78350f;
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.debug-section p {
+  color: #92400e;
+  margin: 5px 0;
+}
+
+.debug-section ul {
+  color: #92400e;
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.debug-section li {
+  margin: 5px 0;
+}
+
+.debug-section strong {
+  color: #78350f;
+}

@@ -11,12 +11,24 @@ const msalConfig = {
   auth: {
     clientId: config.azure.clientId,
     authority: config.azure.authority,
-    redirectUri: config.azure.redirectUri,
+    redirectUri: window.location.origin,
+    navigateToLoginRequestUrl: false
   },
   cache: {
     cacheLocation: 'sessionStorage',
-    storeAuthStateInCookie: false,
+    storeAuthStateInCookie: true
   },
+  system: {
+    allowRedirectInIframe: true,
+    loggerOptions: {
+      loggerCallback: (level, message, containsPii) => {
+        if (containsPii) return;
+        console.log('[MSAL]', message);
+      },
+      logLevel: "Verbose",
+      piiLoggingEnabled: false
+    }
+  }
 }
 
 // Only initialize MSAL if properly configured

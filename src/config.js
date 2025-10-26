@@ -12,7 +12,7 @@ export const config = {
     clientId: '672b5001-d928-45d2-a215-eed927ec6643',
     tenantId: '8d5664e4-f94a-4f3b-a9eb-da674717443b',
     authority: 'https://login.microsoftonline.com/8d5664e4-f94a-4f3b-a9eb-da674717443b',
-    redirectUri: window.location.origin,
+    redirectUri: 'http://localhost:5173',  // Root URL for SPA
   },
 
   // SharePoint Configuration

@@ -1,0 +1,15 @@
+services:
+  pms-dashboard:
+    build:
+      target: production
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    volumes:
+      # Mount source code for development (if needed)
+      - ./src:/app/src:ro
+      - ./public:/app/public:ro
+    command: ["node", "--inspect=0.0.0.0:9229", "server.js"]
+    ports:
+      - "3000:3000"
+      - "9229:9229"  # Node.js debugging port

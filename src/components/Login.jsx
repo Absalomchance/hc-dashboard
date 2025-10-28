@@ -14,13 +14,15 @@ function Login() {
     try {
       const loginRequest = {
         scopes: config.scopes,
-        prompt: 'select_account'
+        prompt: 'select_account',
+        redirectStartPage: window.location.href
       };
 
       console.log('Initiating login request with config:', loginRequest);
       await instance.loginRedirect(loginRequest);
     } catch (error) {
       console.error('Login failed:', error);
+      setIsLoggingIn(false);
     }
   }
 

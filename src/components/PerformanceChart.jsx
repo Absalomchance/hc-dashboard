@@ -1,4 +1,4 @@
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts'
 import './PerformanceChart.css'
 
 function PerformanceChart({ data }) {
@@ -27,35 +27,19 @@ function PerformanceChart({ data }) {
       <h3>Performance Agreement Status</h3>
       
       <div className="charts-container">
-        <div className="pie-chart-container">
-          <h4>Status Distribution</h4>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={data}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={80}
-                fill="#1e3a8a"
-                dataKey="value"
-              >
-                {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[entry.name]} />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-
         <div className="bar-chart-container">
           <h4>Status Breakdown</h4>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+              <XAxis 
+                dataKey="name"
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                interval={0}
+                tick={{ fontSize: 12 }}
+              />
               <YAxis />
               <Tooltip content={<CustomTooltip />} />
               <Legend />

@@ -8,20 +8,21 @@
 }
 
 .charts-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
+  display: flex;
+  justify-content: center;
 }
 
-.pie-chart-container,
 .bar-chart-container {
   background: #f8fafc;
   padding: 20px;
   border-radius: 10px;
   border: 1px solid #e5e7eb;
+  margin: 10px;
+  min-height: 350px;
+  width: 100%;
+  max-width: 800px;
 }
 
-.pie-chart-container h4,
 .bar-chart-container h4 {
   color: #1e3a8a;
   font-size: 16px;
@@ -54,13 +55,12 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .charts-container {
-    grid-template-columns: 1fr;
-    gap: 20px;
+    padding: 0 10px;
   }
   
-  .pie-chart-container,
   .bar-chart-container {
     padding: 15px;
+    margin: 5px;
   }
   
   .performance-chart h3 {

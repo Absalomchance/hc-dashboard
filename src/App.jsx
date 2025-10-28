@@ -12,56 +12,57 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   
-  // Only use MSAL hooks if configured
-  let accounts = []
-  let inProgress = 'none'
+  const { instance, accounts, inProgress } = useMsal()
   
   try {
     if (isConfigured) {
-      const { instance, accounts: msalAccounts, inProgress: msalInProgress } = useMsal()
-      accounts = msalAccounts
-      inProgress = msalInProgress
 
-      // Handle the redirect promise on component mount
+      // Handle initial authentication check and redirect
       useEffect(() => {
-        instance
-          .handleRedirectPromise()
-          .then((response) => {
-            if (response) {
-              console.log("Successfully authenticated");
+        const handleAuth = async () => {
+          if (!instance) return;
+          
+          try {
+            setIsLoading(true);
+            const result = await instance.handleRedirectPromise();
+            
+            if (result) {
+              // We have a successful authentication result
+              setIsAuthenticated(true);
+              return;
+            }
+            
+            // No redirect result, check if user is already signed in
+            const currentAccounts = instance.getAllAccounts();
+            if (currentAccounts.length > 0) {
               setIsAuthenticated(true);
             }
-          })
-          .catch((error) => {
+          } catch (error) {
             console.error("Authentication error:", error);
             setIsAuthenticated(false);
-          })
-          .finally(() => {
+          } finally {
             setIsLoading(false);
-          });
+          }
+        };
+
+        handleAuth();
       }, [instance]);
 
-      // Check if user is already logged in
+      // Monitor account changes
       useEffect(() => {
-        const currentAccounts = instance.getAllAccounts();
-        if (currentAccounts.length > 0) {
+        if (accounts.length > 0) {
           setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
         }
-        setIsLoading(false);
-      }, [instance]);
+      }, [accounts]);
     }
   } catch (error) {
     console.log('MSAL not available, running in demo mode')
     setIsLoading(false);
   }
 
-  useEffect(() => {
-    if (accounts.length > 0) {
-      setIsAuthenticated(true)
-    } else {
-      setIsAuthenticated(false)
-    }
-  }, [accounts])
+
 
   // Show configuration guide if not configured
   if (!isConfigured) {

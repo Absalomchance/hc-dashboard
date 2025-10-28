@@ -434,8 +434,10 @@ function Dashboard() {
     return (
       <div className="dashboard-loading">
         <div className="loading-spinner"></div>
-        <p>Loading performance data from SharePoint and Active Directory...</p>
-        <p>This may take a moment...</p>
+        <div className="loading-text">
+          <p style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Loading performance data from SharePoint and Active Directory...</p>
+          <p style={{ fontSize: '1rem', color: '#4b5563' }}>This may take a moment...</p>
+        </div>
       </div>
     )
   }

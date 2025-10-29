@@ -92,3 +92,11 @@ render.yaml
 
 # Development files
 azure-setup-helper.html
+
+# Traefik files (not needed in container)
+traefik/
+certs/
+docker-compose*.yml
+generate-certs.*
+openssl.conf
+TRAEFIK.md

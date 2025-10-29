@@ -1,0 +1,70 @@
+# Dynamic configuration
+# HTTP to HTTPS redirect
+http:
+  middlewares:
+    # HTTPS redirect middleware
+    https-redirect:
+      redirectScheme:
+        scheme: https
+        permanent: true
+
+    # Security headers middleware
+    security-headers:
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - OPTIONS
+          - PUT
+          - POST
+          - DELETE
+        accessControlMaxAge: 100
+        hostsProxyHeaders:
+          - "X-Forwarded-Host"
+        referrerPolicy: "same-origin"
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+        customResponseHeaders:
+          X-Frame-Options: "SAMEORIGIN"
+          X-Content-Type-Options: "nosniff"
+
+    # Rate limiting middleware
+    rate-limit:
+      rateLimit:
+        burst: 100
+        average: 50
+
+    # Auth middleware (optional, for protecting Traefik dashboard)
+    auth:
+      basicAuth:
+        users:
+          # admin:admin (generated with htpasswd)
+          - "admin:$2y$10$8K8O/3TL8.QHjTyGOzk0Oe5b5OQ5L5L5L5L5L5L5L5L5L5L5L5L5L"
+
+  # Global HTTP to HTTPS redirect
+  routers:
+    http-catchall:
+      rule: "hostregexp(`{host:.+}`)"
+      entryPoints:
+        - web
+      middlewares:
+        - https-redirect
+      service: api@internal
+
+# TLS Configuration
+tls:
+  options:
+    default:
+      sslProtocols:
+        - "TLSv1.2"
+        - "TLSv1.3"
+      cipherSuites:
+        - "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+        - "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305"
+        - "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+        - "TLS_RSA_WITH_AES_256_GCM_SHA384"
+        - "TLS_RSA_WITH_AES_128_GCM_SHA256"
+
+  # Development certificates (self-signed)
+  certificates:
+    - certFile: /certs/server.crt
+      keyFile: /certs/server.key

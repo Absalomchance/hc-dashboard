@@ -1,0 +1,78 @@
+services:
+  # Traefik reverse proxy
+  traefik:
+    image: traefik:v3.1
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - "80:80"       # HTTP
+      - "443:443"     # HTTPS
+      - "8080:8080"   # Traefik dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+      - ./certs:/certs:ro
+      - traefik-acme:/acme
+      - traefik-logs:/var/log
+    networks:
+      - pms-network
+    labels:
+      - "traefik.enable=true"
+      # Dashboard
+      - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.traefik-dashboard.entrypoints=web"
+      - "traefik.http.routers.traefik-dashboard.service=api@internal"
+      # HTTPS Dashboard
+      - "traefik.http.routers.traefik-dashboard-secure.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.traefik-dashboard-secure.entrypoints=websecure"
+      - "traefik.http.routers.traefik-dashboard-secure.service=api@internal"
+      - "traefik.http.routers.traefik-dashboard-secure.tls=true"
+
+  # PMS Dashboard application
+  pms-dashboard:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: pms-dashboard
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - TRUST_PROXY=true
+    networks:
+      - pms-network
+    labels:
+      - "traefik.enable=true"
+      # HTTP
+      - "traefik.http.routers.pms-dashboard.rule=Host(`pms.localhost`) || Host(`localhost`)"
+      - "traefik.http.routers.pms-dashboard.entrypoints=web"
+      - "traefik.http.routers.pms-dashboard.middlewares=https-redirect@file"
+      # HTTPS
+      - "traefik.http.routers.pms-dashboard-secure.rule=Host(`pms.localhost`) || Host(`localhost`)"
+      - "traefik.http.routers.pms-dashboard-secure.entrypoints=websecure"
+      - "traefik.http.routers.pms-dashboard-secure.tls=true"
+      - "traefik.http.routers.pms-dashboard-secure.middlewares=security-headers@file"
+      # Service
+      - "traefik.http.services.pms-dashboard.loadbalancer.server.port=3000"
+      - "traefik.http.services.pms-dashboard.loadbalancer.healthcheck.path=/health"
+      - "traefik.http.services.pms-dashboard.loadbalancer.healthcheck.interval=30s"
+    healthcheck:
+      test: ["CMD", "node", "-e", "const http = require('http'); const options = { host: 'localhost', port: 3000, path: '/health', timeout: 2000 }; const req = http.request(options, (res) => { console.log('STATUS: ' + res.statusCode); process.exitCode = (res.statusCode === 200) ? 0 : 1; }); req.on('error', () => process.exitCode = 1); req.on('timeout', () => process.exitCode = 1); req.end();"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+# Networks
+networks:
+  pms-network:
+    driver: bridge
+    name: pms-network
+
+# Volumes
+volumes:
+  traefik-acme:
+    driver: local
+  traefik-logs:
+    driver: local

@@ -1,0 +1,58 @@
+# Static configuration
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+
+# API and dashboard configuration
+api:
+  dashboard: true
+  debug: true
+  insecure: true  # Only for development, disable for production
+
+# Entry points
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+    http:
+      tls:
+        options: default
+
+# Providers
+providers:
+  # File provider for static configuration
+  file:
+    filename: /etc/traefik/dynamic.yml
+    watch: true
+  
+  # Docker provider for service discovery
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: pms-network
+
+# Certificate resolvers for Let's Encrypt
+certificatesResolvers:
+  letsencrypt:
+    acme:
+      email: admin@example.com  # Replace with your email
+      storage: /acme.json
+      httpChallenge:
+        entryPoint: web
+      # Use staging for testing
+      # caServer: https://acme-staging-v02.api.letsencrypt.org/directory
+
+# Logging
+log:
+  level: INFO
+  filePath: "/var/log/traefik.log"
+
+accessLog:
+  filePath: "/var/log/access.log"
+
+# Metrics (optional)
+metrics:
+  prometheus:
+    addEntryPointsLabels: true
+    addServicesLabels: true

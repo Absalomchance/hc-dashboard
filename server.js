@@ -11,6 +11,11 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Trust proxy when behind reverse proxy (Traefik)
+if (process.env.TRUST_PROXY === 'true') {
+  app.set('trust proxy', 1);
+}
+
 // Security and performance middleware
 app.use(helmet({
   contentSecurityPolicy: {
@@ -29,8 +34,10 @@ app.use(compression());
 
 // Additional security middleware
 app.use((req, res, next) => {
-  // HTTPS redirect in production
-  if (process.env.NODE_ENV === 'production' && req.header('x-forwarded-proto') !== 'https') {
+  // HTTPS redirect in production (but not when behind Traefik proxy)
+  if (process.env.NODE_ENV === 'production' && 
+      !process.env.TRUST_PROXY && 
+      req.header('x-forwarded-proto') !== 'https') {
     res.redirect(`https://${req.header('host')}${req.url}`);
   } else {
     next();
